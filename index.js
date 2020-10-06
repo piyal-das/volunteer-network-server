@@ -82,5 +82,3 @@ client.connect(err => {
     })
 
 });
-
-app.listen(process.env.port || port)
