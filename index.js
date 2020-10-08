@@ -5,6 +5,7 @@ const cors = require('cors');
 require('dotenv').config()
 const { ObjectId } = require('mongodb');
 
+ const port = process.env.PORT || 5000;
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rrq7z.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -14,14 +15,30 @@ app.use(bodyParser.json())
 app.use(cors())
 
 client.connect(err => {
-  const eventsCollection = client.db(`${process.env.DB_NAME}`).collection("volunteer");
-  const volunteersCollection = client.db(`${process.env.DB_NAME}`).collection("volunteers");
+  const eventsCollection = client.db(`volunteerNetwork`).collection("volunteer");
+  const volunteersCollection = client.db(`volunteerNetwork`).collection("volunteer");
  
-  
+  app.post('/Add', (req,res) => {
+    const event = req.body
+    eventsCollection.insertMany(event)
+    console.log(event)
+    .then(result => {
+        res.send(result.insertedCount > 0)
+        console.log(result)
+    })
+
+})
+
+app.get('/', (req, res) => {
+    res.send('hello world')
+})
+
+
+
   
     app.post('/addEvent', (req,res) => {
         const event = req.body
-        eventsCollection.insertOne(volunteer)
+        eventsCollection.insertOne(event)
         .then(result => {
             res.send(result.insertedCount > 0)
         })
@@ -42,7 +59,7 @@ client.connect(err => {
     })
 
     app.post('/addVolunteer',(req,res) => {
-        const volunteer = req.body
+        const volunteers = req.body
         volunteersCollection.insertOne(volunteers)
         .then(result => {
             res.send(result.insertedCount > 0)
@@ -69,7 +86,7 @@ client.connect(err => {
         volunteersCollection.deleteOne({_id: ObjectId(req.params.id)})
         .then(result => {
             res.send(result.deletedCount > 0)
-            res.redirect('/')
+            // res.redirect('/')
         })
     })
 
@@ -77,8 +94,9 @@ client.connect(err => {
         volunteersCollection.deleteOne({_id: ObjectId(req.params.id)})
         .then(result => {
             res.send(result.deletedCount > 0)
-            res.redirect('/')
+            // res.redirect('/')
         })
     })
 
 });
+app.listen(port)
